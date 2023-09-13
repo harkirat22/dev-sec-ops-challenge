@@ -65,7 +65,7 @@ jobs:
           command: gcloud iam service-accounts get-iam-policy "${GCP_SERVICE_ACCOUNT_EMAIL}"
 
 workflows:
-  feature*:
+  main:
     jobs:
       - gcp-oidc-defaults:
           name: Generate Creds File and Authenticate
