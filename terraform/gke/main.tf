@@ -16,7 +16,7 @@ resource "google_container_cluster" "primary" {
       "https://www.googleapis.com/auth/monitoring",
       "https://www.googleapis.com/auth/devstorage.read_only",
     ]
-
+    disk_size_gb = 10
     metadata = {
       disable-legacy-endpoints = "true"
     }
