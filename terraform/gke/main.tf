@@ -61,6 +61,7 @@ resource "google_container_node_pool" "primary_nodes" {
   location   = var.region
   cluster    = google_container_cluster.primary.name
   node_count = 3
+  
 
   node_config {
     oauth_scopes = [
@@ -72,7 +73,7 @@ resource "google_container_node_pool" "primary_nodes" {
       env = "dev"
     }
 
-    machine_type = "n1-standard-1"
+    machine_type = "e2-small"
     preemptible  = true
     #service_account = google_service_account.mysa.email
     disk_size_gb = 10
