@@ -75,6 +75,10 @@ jobs:
   deploy-gke:  # New job to handle Terraform
     docker:
       - image: hashicorp/terraform:latest
+    parameters:
+      project_id:
+        type: env_var_name
+        default: GCP_PROJECT_ID
     steps:
       - checkout
       - attach_workspace:
@@ -85,7 +89,7 @@ jobs:
             cd terraform/gke
             terraform init
             terraform plan
-            terraform apply -auto-approve -var 'project_id=${GCP_PROJECT_ID}'
+            terraform apply -auto-approve -var 'project_id=${<< parameters.project_id >>}'
 
 workflows:
   main:
