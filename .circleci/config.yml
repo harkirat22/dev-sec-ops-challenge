@@ -85,7 +85,7 @@ jobs:
             cd terraform/gke
             terraform init
             terraform plan
-            terraform apply -auto-approve --var='project_id=${GCP_PROJECT_ID}'
+            terraform apply -auto-approve -var 'project_id=${GCP_PROJECT_ID}'
 
 workflows:
   main:
