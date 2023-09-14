@@ -29,7 +29,7 @@ commands:
       - run:
           command: |
             # Store OIDC token in temp file
-            echo $CIRCLE_OIDC_TOKEN > << parameters.oidc_token_file_path >>
+            echo $CIRCLE_OIDC_TOKEN >> << parameters.oidc_token_file_path >>
             # Create a credential configuration for the generated OIDC ID Token
             gcloud iam workload-identity-pools create-cred-config \
                 "projects/${<< parameters.project_id >>}/locations/global/workloadIdentityPools/${<< parameters.workload_identity_pool_id >>}/providers/${<< parameters.workload_identity_pool_provider_id >>}"\
