@@ -16,6 +16,7 @@ provider "google" {
 resource "google_compute_network" "vpc" {
   name                    = "vpc1"
   auto_create_subnetworks = false
+  project = var.project_id
 }
 
 # Create Subnet
@@ -23,6 +24,7 @@ resource "google_compute_subnetwork" "subnet" {
   name          = "subnet1"
   region        = var.region
   network       = google_compute_network.vpc.name
+  project = var.project_id
   ip_cidr_range = "10.0.0.0/24"
 }
 
@@ -31,6 +33,7 @@ resource "google_container_cluster" "primary" {
   location           = var.region
   network                  = google_compute_network.vpc.name
   subnetwork               = google_compute_subnetwork.subnet.name
+  project = var.project_id
   remove_default_node_pool = true  
   initial_node_count = 1
 
@@ -53,9 +56,33 @@ resource "google_container_cluster" "primary" {
   }
   node_config {
     disk_size_gb = 10
+  }
+}
+
+resource "google_container_node_pool" "primary_nodes" {
+  name       = google_container_cluster.primary.name
+  location   = var.region
+  cluster    = google_container_cluster.primary.name
+  project = var.project_id
+  node_count = 3
+  
+
+  node_config {
     oauth_scopes = [
       "https://www.googleapis.com/auth/logging.write",
       "https://www.googleapis.com/auth/monitoring",
     ]
+
+    labels = {
+      env = "dev"
+    }
+
+    machine_type = "e2-small"
+    preemptible  = true
+    #service_account = google_service_account.mysa.email
+    disk_size_gb = 10
+    metadata = {
+      disable-legacy-endpoints = "true"
+    }
   }
 }
