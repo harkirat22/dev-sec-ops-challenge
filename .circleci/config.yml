@@ -72,7 +72,7 @@ jobs:
           name: Verify that gcloud is authenticated
           environment:
             GCP_SERVICE_ACCOUNT_EMAIL: circleci@zinc-citron-398710.iam.gserviceaccount.com
-          command: gcloud iam service-accounts get-iam-policy circleci@zinc-citron-398710.iam.gserviceaccount.com
+          command: gcloud iam service-accounts describe circleci@zinc-citron-398710.iam.gserviceaccount.com
 
 workflows:
   main:
