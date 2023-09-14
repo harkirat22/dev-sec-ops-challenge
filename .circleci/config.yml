@@ -68,18 +68,23 @@ jobs:
       - gcp-cli/install
       - gcp-oidc-generate-cred-config-file
       - gcp-oidc-authenticate
-      # - run:
-      #     name: Verify that gcloud is authenticated
-      #     environment:
-      #       GCP_SERVICE_ACCOUNT_EMAIL: circleci@zinc-citron-398710.iam.gserviceaccount.com
-      #     command: gcloud iam service-accounts describe circleci@zinc-citron-398710.iam.gserviceaccount.com
+  deploy-gke:  # New job to handle Terraform
+    docker:
+      - image: hashicorp/terraform:latest
+    steps:
+      - checkout
       - run:
-          name: Verify that ADC works
-          command: |
-              ACCESS_TOKEN=$(gcloud auth application-default print-access-token)
-              echo $ACCESS_TOKEN
-              curl -f -i -H "Content-Type: application/x-www-form-urlencoded" -d "access_token=${ACCESS_TOKEN}" https://www.googleapis.com/oauth2/v1/tokeninfo
-
+          name: Change to GKE Terraform Directory
+          command: cd terraform/gke
+      - run:
+          name: Terraform Init
+          command: terraform init
+      - run:
+          name: Terraform Plan
+          command: terraform plan
+      - run:
+          name: Terraform Apply
+          command: terraform apply -auto-approve
 
 workflows:
   main:
@@ -88,3 +93,5 @@ workflows:
           name: Generate Creds File and Authenticate
           context:
           - oidc-dev
+      - deploy-gke:
+          name: gke cluster deployment
