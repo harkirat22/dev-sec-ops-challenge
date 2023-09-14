@@ -74,17 +74,12 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Change to GKE Terraform Directory
-          command: cd terraform/gke
-      - run:
-          name: Terraform Init
-          command: terraform init
-      - run:
-          name: Terraform Plan
-          command: terraform plan
-      - run:
-          name: Terraform Apply
-          command: terraform apply -auto-approve
+          name: Execute Terraform Commands
+          command: |
+            cd terraform/gke
+            terraform init
+            terraform plan
+            terraform apply -auto-approve
 
 workflows:
   main:
