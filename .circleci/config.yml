@@ -72,4 +72,4 @@ workflows:
       - gcp-oidc-defaults:
           name: Generate Creds File and Authenticate
           context:
-          - gcp-oidc-dev
+          - oidc-gcp
