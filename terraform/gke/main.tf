@@ -39,7 +39,7 @@ resource "google_container_cluster" "primary" {
     enable_private_nodes   = true 
     master_ipv4_cidr_block = "10.13.0.0/28"
   }
-  
+
   ip_allocation_policy {
     cluster_ipv4_cidr_block  = "10.11.0.0/21"
     services_ipv4_cidr_block = "10.12.0.0/21"
@@ -50,6 +50,9 @@ resource "google_container_cluster" "primary" {
       display_name = "net1"
     }
 
+  }
+  node_config {
+    disk_size_gb = 10
   }
 }
 
