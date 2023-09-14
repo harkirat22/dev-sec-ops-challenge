@@ -42,6 +42,7 @@ commands:
           root: /home/circleci
           paths:
             - gcp_cred_config.json
+            - oidc_token.json
 
   gcp-oidc-authenticate:
     description: "Authenticate with GCP using a GCP credentials file."
