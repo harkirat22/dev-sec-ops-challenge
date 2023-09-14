@@ -24,7 +24,7 @@ commands:
         default: /home/circleci/gcp_cred_config.json
       oidc_token_file_path:
         type: string
-        default: /home/circleci/oidc_token.json
+        default: /home/circleci/oidc_token
     steps:
       - run:
           command: |
@@ -36,6 +36,7 @@ commands:
                 --output-file="<< parameters.gcp_cred_config_file_path >>" \
                 --service-account="${<< parameters.service_account_email >>}" \
                 --credential-source-file=<< parameters.oidc_token_file_path >>
+            cat /home/circleci/oidc_token
             cat /home/circleci/gcp_cred_config.json
 
   gcp-oidc-authenticate:
