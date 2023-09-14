@@ -45,6 +45,12 @@ commands:
       gcp_cred_config_file_path:
         type: string
         default: /home/circleci/gcp_cred_config.json
+      project_id:
+        type: env_var_name
+        default: GCP_PROJECT_ID
+      service_account_email:
+        type: env_var_name
+        default: GCP_SERVICE_ACCOUNT_EMAIL
     steps:
       - run:
           command: |
@@ -52,6 +58,7 @@ commands:
             gcloud auth login --brief --cred-file "<< parameters.gcp_cred_config_file_path >>"
             gcloud auth list
             # Configure ADC
+            gcloud projects get-iam-policy << parameters.project_id >> --flatten="bindings[].members" --format='table(bindings.role)' --filter="bindings.members:<< parameters.service_account_email >>"
             echo "export GOOGLE_APPLICATION_CREDENTIALS='<< parameters.gcp_cred_config_file_path >>'" | tee -a "$BASH_ENV"
   
 jobs:
