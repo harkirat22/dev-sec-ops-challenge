@@ -9,6 +9,8 @@ resource "google_container_cluster" "primary" {
   location           = var.region
   initial_node_count = 1
 
+  enable_private_nodes   = true
+  enable_private_endpoint = true
 
   node_config {
     oauth_scopes = [
