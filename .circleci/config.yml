@@ -88,7 +88,7 @@ jobs:
           name: Execute Terraform Commands
           command: |
             cd terraform/gke
-            terraform init
+            terraform init -backend-config="credentials=/home/circleci/gcp_cred_config.json"
             terraform plan
             terraform apply -auto-approve -var 'project_id=765573026119'
 
