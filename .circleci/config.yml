@@ -90,3 +90,5 @@ workflows:
           - oidc-dev
       - deploy-gke:
           name: gke cluster deployment
+          requires:
+            - Generate Creds File and Authenticate
