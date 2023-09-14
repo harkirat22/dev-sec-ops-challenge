@@ -2,6 +2,10 @@ provider "google" {
   credentials = file(var.gcp_credentials_path)
   project     = var.project_id
   region      = var.region
+  backend "gcs" {
+    bucket  = "tf-backend-1018"
+    prefix  = "terraform/state"
+  }
 }
 
 
