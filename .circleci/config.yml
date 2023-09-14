@@ -38,6 +38,10 @@ commands:
                 --credential-source-file=<< parameters.oidc_token_file_path >>
             cat /home/circleci/oidc_token.json
             cat /home/circleci/gcp_cred_config.json
+      - persist_to_workspace:
+          root: /home/circleci
+          paths:
+            - gcp_cred_config.json
 
   gcp-oidc-authenticate:
     description: "Authenticate with GCP using a GCP credentials file."
@@ -73,6 +77,8 @@ jobs:
       - image: hashicorp/terraform:latest
     steps:
       - checkout
+      - attach_workspace:
+          at: /home/circleci
       - run:
           name: Execute Terraform Commands
           command: |
