@@ -117,7 +117,7 @@ jobs:
             cd terraform/gke
             # CLUSTER_NAME=$(cat /home/circleci/cluster_name.txt)
             # CLUSTER_ZONE=$(cat /home/circleci/cluster_zone.txt)
-            gcloud container clusters get-credentials gke-test-cluster --zone us-central-1 --project 765573026119
+            gcloud container clusters get-credentials gke-test-cluster --zone us-central-1 --project zinc-citron-398710
       - run:
           name: Persist kubeconfig for future steps
           command: |
