@@ -104,8 +104,7 @@ jobs:
   #           - cluster_zone.txt
       
   combined-job:
-    docker:
-      - image: hashicorp/terraform:latest
+    executor: gcp-cli/default
     steps:
       - checkout
       - attach_workspace:
@@ -113,18 +112,24 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            apk --no-cache add curl bash
+            sudo apt-get update
+            sudo apt-get install -y curl bash unzip
+      - run:
+          name: Install Terraform
+          command: |
+            curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
+            sudo apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
+            sudo apt-get update && sudo apt-get install terraform
       - run:
           name: Install Google Cloud SDK tools and kubectl
           command: |
             curl -sSL https://sdk.cloud.google.com | bash
-            export PATH=$PATH:/root/google-cloud-sdk/bin
+            echo "export PATH=$PATH:/home/circleci/google-cloud-sdk/bin" >> $BASH_ENV
             gcloud components install kubectl
       - gcp-oidc-authenticate
       - run:
           name: Get GKE kubeconfig from Terraform Output
           command: |
-            export USE_GKE_GCLOUD_AUTH_PLUGIN=True
             gcloud container clusters get-credentials gke-test-cluster --zone us-central1 --project zinc-citron-398710
       - run:
           name: Setup kubernetes configuration for Terraform
