@@ -142,7 +142,7 @@ jobs:
           name: Deploy Falco with Terraform
           command: |
             cd terraform/falco # Adjust path to your Terraform directory for Falco deployment
-            terraform init
+            terraform init -backend-config="credentials=/home/circleci/gcp_cred_config.json"
             terraform plan
             terraform apply -auto-approve
 
