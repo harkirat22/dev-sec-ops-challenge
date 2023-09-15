@@ -118,7 +118,7 @@ jobs:
             # CLUSTER_NAME=$(cat /home/circleci/cluster_name.txt)
             # CLUSTER_ZONE=$(cat /home/circleci/cluster_zone.txt)
             gcloud components install kubectl
-            gcloud container clusters get-credentials gke-test-cluster --zone us-central-1 --project zinc-citron-398710
+            gcloud container clusters get-credentials gke-test-cluster --zone us-central1 --project zinc-citron-398710
       - run:
           name: Persist kubeconfig for future steps
           command: |
