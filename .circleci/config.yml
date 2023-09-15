@@ -92,11 +92,29 @@ jobs:
             terraform plan
             terraform apply -auto-approve -var 'project_id=765573026119'
       - run:
+          name: Save Terraform Outputs
+          command: |
+            cd terraform/gke
+            terraform output -raw cluster_name > /home/circleci/cluster_name.txt
+            terraform output -raw cluster_zone > /home/circleci/cluster_zone.txt
+      - persist_to_workspace:
+          root: /home/circleci
+          paths:
+            - cluster_name.txt
+            - cluster_zone.txt
+      
+  fetch-kubeconfig:
+    executor: gcp-cli/default
+    steps:
+      - checkout
+      - attach_workspace:
+          at: /home/circleci
+      - run:
           name: Get GKE kubeconfig from Terraform Output
           command: |
             cd terraform/gke
-            CLUSTER_NAME=$(terraform output -raw cluster_name)
-            CLUSTER_ZONE=$(terraform output -raw cluster_zone)
+            CLUSTER_NAME=$(cat /home/circleci/cluster_name.txt)
+            CLUSTER_ZONE=$(cat /home/circleci/cluster_zone.txt)
             gcloud container clusters get-credentials $CLUSTER_NAME --zone $CLUSTER_ZONE --project 765573026119
       - run:
           name: Persist kubeconfig for future steps
@@ -119,3 +137,7 @@ workflows:
           name: gke cluster deployment
           requires:
             - Generate Creds File and Authenticate
+      - fetch-kubeconfig:
+          name: Fetch GKE Kubeconfig
+          requires:
+            - gke cluster deployment
