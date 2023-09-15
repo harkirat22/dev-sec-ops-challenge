@@ -113,10 +113,9 @@ jobs:
       - run:
           name: Install Google Cloud SDK tools and kubectl
           command: |
-            echo 'deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main' | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
-            apt-get install -y apt-transport-https ca-certificates gnupg
-            curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key --keyring /usr/share/keyrings/cloud.google.gpg add -
-            apt-get update && apt-get install -y google-cloud-sdk kubectl
+            curl -sSL https://sdk.cloud.google.com | bash
+            export PATH=$PATH:/root/google-cloud-sdk/bin
+            gcloud components install kubectl
       - gcp-oidc-authenticate
       - run:
           name: Get GKE kubeconfig from Terraform Output
