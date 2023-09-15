@@ -90,7 +90,23 @@ jobs:
             cd terraform/gke
             terraform init -backend-config="credentials=/home/circleci/gcp_cred_config.json"
             terraform plan
-            terraform apply -auto-approve -var 'project_id=765573026119'
+            terraform apply -auto-approve -var 'project_id=<< parameters.project_id >>'
+      - run:
+          name: Get GKE kubeconfig from Terraform Output
+          command: |
+            cd terraform/gke
+            CLUSTER_NAME=$(terraform output -raw cluster_name)
+            CLUSTER_ZONE=$(terraform output -raw cluster_zone)
+            gcloud container clusters get-credentials $CLUSTER_NAME --zone $CLUSTER_ZONE --project << parameters.project_id >>
+      - run:
+          name: Persist kubeconfig for future steps
+          command: |
+            mkdir -p /home/circleci/.kube
+            cp ~/.kube/config /home/circleci/.kube/config
+      - persist_to_workspace:
+          root: /home/circleci
+          paths:
+            - .kube/config
 
 workflows:
   main:
