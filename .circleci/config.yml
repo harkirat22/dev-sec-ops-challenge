@@ -73,35 +73,35 @@ jobs:
       - gcp-cli/install
       - gcp-oidc-generate-cred-config-file
       - gcp-oidc-authenticate
-  # deploy-gke:  # New job to handle Terraform
-  #   docker:
-  #     - image: hashicorp/terraform:latest
-  #   parameters:
-  #     project_id:
-  #       type: env_var_name
-  #       default: GCP_PROJECT_ID
-  #   steps:
-  #     - checkout
-  #     - attach_workspace:
-  #         at: /home/circleci
-  #     - run:
-  #         name: Execute Terraform Commands
-  #         command: |
-  #           cd terraform/gke
-  #           terraform init -backend-config="credentials=/home/circleci/gcp_cred_config.json"
-  #           terraform plan
-  #           terraform apply -auto-approve -var 'project_id=765573026119'
-  #     - run:
-  #         name: Save Terraform Outputs
-  #         command: |
-  #           cd terraform/gke
-  #           terraform output -raw cluster_name > /home/circleci/cluster_name.txt
-  #           terraform output -raw cluster_zone > /home/circleci/cluster_zone.txt
-  #     - persist_to_workspace:
-  #         root: /home/circleci
-  #         paths:
-  #           - cluster_name.txt
-  #           - cluster_zone.txt
+  deploy-gke:  # New job to handle Terraform
+    docker:
+      - image: hashicorp/terraform:latest
+    parameters:
+      project_id:
+        type: env_var_name
+        default: GCP_PROJECT_ID
+    steps:
+      - checkout
+      - attach_workspace:
+          at: /home/circleci
+      - run:
+          name: Execute Terraform Commands
+          command: |
+            cd terraform/gke
+            terraform init -backend-config="credentials=/home/circleci/gcp_cred_config.json"
+            terraform plan
+            terraform apply -auto-approve -var 'project_id=765573026119'
+      - run:
+          name: Save Terraform Outputs
+          command: |
+            cd terraform/gke
+            terraform output -raw cluster_name > /home/circleci/cluster_name.txt
+            terraform output -raw cluster_zone > /home/circleci/cluster_zone.txt
+      - persist_to_workspace:
+          root: /home/circleci
+          paths:
+            - cluster_name.txt
+            - cluster_zone.txt
       
   combined-job:
     executor: gcp-cli/default
@@ -155,14 +155,14 @@ workflows:
           name: Generate Creds File and Authenticate
           context:
           - oidc-dev
-      # - deploy-gke:
-      #     name: gke cluster deployment
-      #     requires:
-      #       - Generate Creds File and Authenticate
+      - deploy-gke:
+          name: gke cluster deployment
+          requires:
+            - Generate Creds File and Authenticate
       - combined-job:
           name: Fetch GKE Kubeconfig
           requires:
-            - Generate Creds File and Authenticate
+            - gke cluster deployment
       # - deploy-falco:
       #     name: Deploy Falco with Terraform
       #     requires:
