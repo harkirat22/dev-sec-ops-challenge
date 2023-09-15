@@ -9,6 +9,6 @@ output "cluster_name" {
 }
 
 output "cluster_zone" {
-  value = google_container_cluster.primary.zone
+  value = google_container_cluster.primary.location
   description = "The zone of the GKE cluster."
 }
