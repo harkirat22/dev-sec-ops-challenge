@@ -121,9 +121,8 @@ jobs:
             gcloud container clusters get-credentials gke-test-cluster --zone us-central1 --project zinc-citron-398710
       - run:
           name: Persist kubeconfig for future steps
-          command: |
-            mkdir -p /home/circleci/.kube
-            cp ~/.kube/config /home/circleci/.kube/config
+          command:
+            ls /home/circleci/
       - persist_to_workspace:
           root: /home/circleci
           paths:
