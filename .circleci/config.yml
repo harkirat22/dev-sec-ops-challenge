@@ -108,9 +108,9 @@ jobs:
     steps:
       - checkout
       - gcp-cli/install
-      - gcp-oidc-authenticate
       - attach_workspace:
           at: /home/circleci
+      - gcp-oidc-authenticate
       - run:
           name: Get GKE kubeconfig from Terraform Output
           command: |
