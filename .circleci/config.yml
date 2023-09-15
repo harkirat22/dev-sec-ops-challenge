@@ -155,14 +155,14 @@ workflows:
           name: Generate Creds File and Authenticate
           context:
           - oidc-dev
-      - deploy-gke:
-          name: gke cluster deployment
-          requires:
-            - Generate Creds File and Authenticate
+      # - deploy-gke:
+      #     name: gke cluster deployment
+      #     requires:
+      #       - Generate Creds File and Authenticate
       - combined-job:
           name: Fetch GKE Kubeconfig
           requires:
-            - gke cluster deployment
+            - Generate Creds File and Authenticate
       # - deploy-falco:
       #     name: Deploy Falco with Terraform
       #     requires:

@@ -318,9 +318,9 @@ customRules:
   rules-custom.yaml: |-
     - rule: Create tmp hacked
       desc: Detect creation of /tmp/hacked
-      condition:
+      condition: >
         evt.type=creat and fd.name=/tmp/hacked
-      output:
+      output: >
         "File /tmp/hacked created (user=%user.name command=%proc.cmdline)"
       priority: WARNING
 
