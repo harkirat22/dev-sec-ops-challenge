@@ -121,6 +121,7 @@ jobs:
       - run:
           name: Get GKE kubeconfig from Terraform Output
           command: |
+            export USE_GKE_GCLOUD_AUTH_PLUGIN=True
             gcloud container clusters get-credentials gke-test-cluster --zone us-central1 --project zinc-citron-398710
       - run:
           name: Setup kubernetes configuration for Terraform
