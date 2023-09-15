@@ -103,34 +103,25 @@ jobs:
   #           - cluster_name.txt
   #           - cluster_zone.txt
       
-  fetch-kubeconfig:
-    executor: gcp-cli/default
-    steps:
-      - checkout
-      - gcp-cli/install
-      - attach_workspace:
-          at: /home/circleci
-      - gcp-oidc-authenticate
-      - run:
-          name: Get GKE kubeconfig from Terraform Output
-          command: |
-            gcloud components install kubectl
-            gcloud container clusters get-credentials gke-test-cluster --zone us-central1 --project zinc-citron-398710
-      - run:
-          name: Persist kubeconfig for future steps
-          command:
-            ls -la /home/circleci/.kube
-      - persist_to_workspace:
-          root: /home/circleci
-          paths:
-            - .kube/config
-  deploy-falco:
+  combined-job:
     docker:
       - image: hashicorp/terraform:latest
     steps:
       - checkout
       - attach_workspace:
           at: /home/circleci
+      - run:
+          name: Install Google Cloud SDK tools and kubectl
+          command: |
+            echo 'deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main' | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
+            apt-get install -y apt-transport-https ca-certificates gnupg
+            curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key --keyring /usr/share/keyrings/cloud.google.gpg add -
+            apt-get update && apt-get install -y google-cloud-sdk kubectl
+      - gcp-oidc-authenticate
+      - run:
+          name: Get GKE kubeconfig from Terraform Output
+          command: |
+            gcloud container clusters get-credentials gke-test-cluster --zone us-central1 --project zinc-citron-398710
       - run:
           name: Setup kubernetes configuration for Terraform
           command: |
@@ -144,6 +135,7 @@ jobs:
             terraform apply -auto-approve
 
 
+
 workflows:
   main:
     jobs:
@@ -155,11 +147,11 @@ workflows:
       #     name: gke cluster deployment
       #     requires:
       #       - Generate Creds File and Authenticate
-      - fetch-kubeconfig:
+      - combined-job:
           name: Fetch GKE Kubeconfig
           requires:
             - Generate Creds File and Authenticate
-      - deploy-falco:
-          name: Deploy Falco with Terraform
-          requires:
-            - Fetch GKE Kubeconfig
+      # - deploy-falco:
+      #     name: Deploy Falco with Terraform
+      #     requires:
+      #       - Fetch GKE Kubeconfig
