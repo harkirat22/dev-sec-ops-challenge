@@ -111,6 +111,10 @@ jobs:
       - attach_workspace:
           at: /home/circleci
       - run:
+          name: Install dependencies
+          command: |
+            apk --no-cache add curl bash
+      - run:
           name: Install Google Cloud SDK tools and kubectl
           command: |
             curl -sSL https://sdk.cloud.google.com | bash
