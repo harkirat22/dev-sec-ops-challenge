@@ -127,8 +127,6 @@ jobs:
       - run:
           name: Install Google Cloud SDK tools and kubectl
           command: |
-            curl -sSL https://sdk.cloud.google.com | bash
-            echo "export PATH=$PATH:/home/circleci/google-cloud-sdk/bin" >> $BASH_ENV
             gcloud components install kubectl
       - gcp-oidc-authenticate
       - run:
