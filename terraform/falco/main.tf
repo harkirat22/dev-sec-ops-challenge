@@ -1,3 +1,10 @@
+terraform {
+  backend "gcs" {
+    bucket  = "helm-backend-1018"
+    prefix  = "helm/state"
+  }
+}
+
 provider "helm" {
   kubernetes {
     config_path = var.kube_config_path 
