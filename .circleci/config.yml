@@ -107,6 +107,7 @@ jobs:
     executor: gcp-cli/default
     steps:
       - checkout
+      - gcp-cli/install
       - attach_workspace:
           at: /home/circleci
       - run:
