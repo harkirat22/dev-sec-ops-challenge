@@ -108,6 +108,7 @@ jobs:
     steps:
       - checkout
       - gcp-cli/install
+      - gcp-oidc-authenticate
       - attach_workspace:
           at: /home/circleci
       - run:
@@ -134,11 +135,11 @@ workflows:
           name: Generate Creds File and Authenticate
           context:
           - oidc-dev
-      - deploy-gke:
-          name: gke cluster deployment
-          requires:
-            - Generate Creds File and Authenticate
+      # - deploy-gke:
+      #     name: gke cluster deployment
+      #     requires:
+      #       - Generate Creds File and Authenticate
       - fetch-kubeconfig:
           name: Fetch GKE Kubeconfig
-          requires:
-            - gke cluster deployment
+          # requires:
+          #   - gke cluster deployment
