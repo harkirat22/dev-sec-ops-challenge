@@ -73,35 +73,35 @@ jobs:
       - gcp-cli/install
       - gcp-oidc-generate-cred-config-file
       - gcp-oidc-authenticate
-  deploy-gke:  # New job to handle Terraform
-    docker:
-      - image: hashicorp/terraform:latest
-    parameters:
-      project_id:
-        type: env_var_name
-        default: GCP_PROJECT_ID
-    steps:
-      - checkout
-      - attach_workspace:
-          at: /home/circleci
-      - run:
-          name: Execute Terraform Commands
-          command: |
-            cd terraform/gke
-            terraform init -backend-config="credentials=/home/circleci/gcp_cred_config.json"
-            terraform plan
-            terraform apply -auto-approve -var 'project_id=765573026119'
-      - run:
-          name: Save Terraform Outputs
-          command: |
-            cd terraform/gke
-            terraform output -raw cluster_name > /home/circleci/cluster_name.txt
-            terraform output -raw cluster_zone > /home/circleci/cluster_zone.txt
-      - persist_to_workspace:
-          root: /home/circleci
-          paths:
-            - cluster_name.txt
-            - cluster_zone.txt
+  # deploy-gke:  # New job to handle Terraform
+  #   docker:
+  #     - image: hashicorp/terraform:latest
+  #   parameters:
+  #     project_id:
+  #       type: env_var_name
+  #       default: GCP_PROJECT_ID
+  #   steps:
+  #     - checkout
+  #     - attach_workspace:
+  #         at: /home/circleci
+  #     - run:
+  #         name: Execute Terraform Commands
+  #         command: |
+  #           cd terraform/gke
+  #           terraform init -backend-config="credentials=/home/circleci/gcp_cred_config.json"
+  #           terraform plan
+  #           terraform apply -auto-approve -var 'project_id=765573026119'
+  #     - run:
+  #         name: Save Terraform Outputs
+  #         command: |
+  #           cd terraform/gke
+  #           terraform output -raw cluster_name > /home/circleci/cluster_name.txt
+  #           terraform output -raw cluster_zone > /home/circleci/cluster_zone.txt
+  #     - persist_to_workspace:
+  #         root: /home/circleci
+  #         paths:
+  #           - cluster_name.txt
+  #           - cluster_zone.txt
       
   fetch-kubeconfig:
     executor: gcp-cli/default
@@ -114,9 +114,6 @@ jobs:
       - run:
           name: Get GKE kubeconfig from Terraform Output
           command: |
-            # cd terraform/gke
-            # CLUSTER_NAME=$(cat /home/circleci/cluster_name.txt)
-            # CLUSTER_ZONE=$(cat /home/circleci/cluster_zone.txt)
             gcloud components install kubectl
             gcloud container clusters get-credentials gke-test-cluster --zone us-central1 --project zinc-citron-398710
       - run:
@@ -127,6 +124,25 @@ jobs:
           root: /home/circleci
           paths:
             - .kube/config
+  deploy-falco:
+    docker:
+      - image: hashicorp/terraform:latest
+    steps:
+      - checkout
+      - attach_workspace:
+          at: /home/circleci
+      - run:
+          name: Setup kubernetes configuration for Terraform
+          command: |
+            echo 'export KUBE_CONFIG_PATH="/home/circleci/.kube/config"' >> $BASH_ENV
+      - run:
+          name: Deploy Falco with Terraform
+          command: |
+            cd terraform/falco # Adjust path to your Terraform directory for Falco deployment
+            terraform init
+            terraform plan
+            terraform apply -auto-approve
+
 
 workflows:
   main:
@@ -143,3 +159,7 @@ workflows:
           name: Fetch GKE Kubeconfig
           requires:
             - Generate Creds File and Authenticate
+      - deploy-falco:
+          name: Deploy Falco with Terraform
+          requires:
+            - Fetch GKE Kubeconfig
