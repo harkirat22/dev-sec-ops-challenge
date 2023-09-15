@@ -16,7 +16,6 @@ provider "google" {
 resource "google_compute_network" "vpc" {
   name                    = "vpc1"
   auto_create_subnetworks = false
-  project = var.project_id
 }
 
 # Create Subnet
@@ -24,7 +23,6 @@ resource "google_compute_subnetwork" "subnet" {
   name          = "subnet1"
   region        = var.region
   network       = google_compute_network.vpc.name
-  project = var.project_id
   ip_cidr_range = "10.0.0.0/24"
 }
 
@@ -33,7 +31,6 @@ resource "google_container_cluster" "primary" {
   location           = var.region
   network                  = google_compute_network.vpc.name
   subnetwork               = google_compute_subnetwork.subnet.name
-  project = var.project_id
   remove_default_node_pool = true  
   initial_node_count = 1
 
