@@ -1252,8 +1252,40 @@ falco:
   # setsid, setuid, setgid, setpgid, setresgid, setsid, capset, chdir, chroot,
   # fchdir ...
   base_syscalls:
-    custom_set: []
-    repair: false
+  custom_set:
+    # File operations
+    - open
+    - openat
+    - read
+    - write
+    - pread
+    - preadv
+    - pwrite
+    - pwritev
+    - readv
+    - recv
+    - recvmmsg
+    - send
+    - sendfile
+    - sendmmsg
+    - writev
+
+    # Network operations
+    - socket
+    - bind
+    - connect
+
+    # Process attribute operations
+    - setresuid
+    - setresgid
+    - setuid
+    - setgid
+    - setsid
+    - getuid
+    - getgid
+
+  repair: false
+
 
   # [Experimental] `modern_bpf.cpus_for_each_syscall_buffer`, modern_bpf only
   #
