@@ -45,6 +45,5 @@ resource "helm_release" "falco" {
   }
 
   values = [
-    "../../helm/custom-rules.yaml"
   ]
 }
