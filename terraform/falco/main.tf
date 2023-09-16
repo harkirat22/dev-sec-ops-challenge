@@ -43,4 +43,8 @@ resource "helm_release" "falco" {
     name  = "falcosidekick.enabled"
     value = "true"
   }
+
+  values = [
+    "../../helm/custom-rules.yaml"
+  ]
 }
