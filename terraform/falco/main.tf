@@ -49,6 +49,10 @@ resource "helm_release" "falco" {
     value = "true"
 }
 
+  set {
+    name  = "base_syscalls.custom_set"
+    value = "open,openat,read,write,pread,preadv,pwrite,pwritev,readv,recv,recvmmsg,send,sendfile,sendmmsg,writev,socket,bind,connect,setresuid,setresgid,setuid,setgid,setsid,getuid,getgid"
+  }
   values = [
   ]
 }
