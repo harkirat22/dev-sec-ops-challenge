@@ -322,6 +322,7 @@ customRules:
         evt.type = open and evt.arg.flags contains O_CREAT and fd.name = /tmp/hacked
       output: >
         File /tmp/hacked created by user=%user.name
+      priority: notice
 
 
 
