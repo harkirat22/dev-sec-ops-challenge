@@ -39,11 +39,6 @@ resource "helm_release" "falco" {
   recreate_pods = true
 
   set {
-    name  = "driver.kind"
-    value = "module"
-  }
-
-  set {
     name  = "tty"
     value = "true"
   }
