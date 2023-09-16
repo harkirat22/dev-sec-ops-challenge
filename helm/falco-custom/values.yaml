@@ -315,14 +315,7 @@ certs:
     crt: ""
 # -- Third party rules enabled for Falco. More info on the dedicated section in README.md file.
 customRules:
-  rules-custom.yaml: |-
-    - rule: Create tmp hacked
-      desc: Detect creation of /tmp/hacked
-      condition: >
-        (evt.type=creat or evt.type=open) and fd.name contains /tmp/hacked
-      output: >
-        "File /tmp/hacked created (user=%user.name command=%proc.cmdline file=%fd.name)"
-      priority: WARNING
+  {}
 
 
   # Although Falco comes with a nice default rule set for detecting weird
