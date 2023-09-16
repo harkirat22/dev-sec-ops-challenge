@@ -323,6 +323,12 @@ customRules:
       output: >
         File /tmp/hacked created by user=%user.name
       priority: notice
+    - rule: Detect Netcat Execution
+      desc: An attempt to run the netcat command
+      condition: proc.name = nc
+      output: "Netcat (nc) executed by user=%user.name"
+      priority: WARNING
+
 
 
 
