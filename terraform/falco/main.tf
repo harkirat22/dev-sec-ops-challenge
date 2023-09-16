@@ -44,6 +44,11 @@ resource "helm_release" "falco" {
     value = "true"
   }
 
+  set_string {
+    name  = "dummy"
+    value = "true"
+}
+
   values = [
   ]
 }
