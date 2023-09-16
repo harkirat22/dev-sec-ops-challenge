@@ -21,6 +21,15 @@ resource "kubernetes_namespace" "falco" {
   }
 }
 
+locals {
+  syscalls = [
+    "open", "openat", "read", "write", "pread", "preadv", "pwrite",
+    "pwritev", "readv", "recv", "recvmmsg", "send", "sendfile",
+    "sendmmsg", "writev", "socket", "bind", "connect", "setresuid",
+    "setresgid", "setuid", "setgid", "setsid", "getuid", "getgid"
+  ]
+}
+
 resource "helm_release" "falco" {
   depends_on = [kubernetes_namespace.falco]
 
@@ -49,9 +58,16 @@ resource "helm_release" "falco" {
     value = "true"
 }
 
-  set {
-    name  = "base_syscalls.custom_set"
-    value = "open,openat,read,write,pread,preadv,pwrite,pwritev,readv,recv,recvmmsg,send,sendfile,sendmmsg,writev,socket,bind,connect,setresuid,setresgid,setuid,setgid,setsid,getuid,getgid"
+  dynamic "set" {
+    for_each = [for s in local.syscalls : {
+      name  = "base_syscalls.custom_set[${index(local.syscalls, s)}]"
+      value = s
+    }]
+
+    content {
+      name  = set.value.name
+      value = set.value.value
+    }
   }
   values = [
   ]
