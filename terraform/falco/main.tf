@@ -53,17 +53,17 @@ resource "helm_release" "falco" {
     value = "true"
 }
 
-  dynamic "set" {
-    for_each = [for s in local.syscalls : {
-      name  = "base_syscalls.custom_set[${index(local.syscalls, s)}]"
-      value = s
-    }]
+#   dynamic "set" {
+#     for_each = [for s in local.syscalls : {
+#       name  = "base_syscalls.custom_set[${index(local.syscalls, s)}]"
+#       value = s
+#     }]
 
-    content {
-      name  = set.value.name
-      value = set.value.value
-    }
-  }
+#     content {
+#       name  = set.value.name
+#       value = set.value.value
+#     }
+#   }
   values = [
   ]
 }
