@@ -314,13 +314,13 @@ certs:
     # -- CA certificate used by gRPC, webserver and AuditSink validation.
     crt: ""
 # -- Third party rules enabled for Falco. More info on the dedicated section in README.md file.
-   # - rule: Suspicious Touch on /tmp/hacked
-    #   desc: Detect the specific execution of touch on /tmp/hacked
-    #   condition: evt.type=execve and proc.name=touch and evt.arg[1]="/tmp/hacked"
-    #   output: "touch command executed on /tmp/hacked by user %user.name"
-    #   priority: WARNING
 customRules:
   rules-custom.yaml: |-
+    - rule: Suspicious Touch on /tmp/hacked
+      desc: Detect the specific execution of touch on /tmp/hacked
+      condition: evt.type=execve and proc.name=touch and evt.arg[1]="/tmp/hacked"
+      output: "touch command executed on /tmp/hacked by user %user.name"
+      priority: WARNING
     - rule: Detect Netcat Execution
       desc: An attempt to run the netcat command
       condition: proc.name = nc
@@ -1248,6 +1248,8 @@ falco:
   # when the running process opens a file or makes a network connection, consider
   # adding the following to the above recommended syscall sets: ... setresuid,
   # setsid, setuid, setgid, setpgid, setresgid, setsid, capset, chdir, chroot,
+
+  # pread, preadv, pwrite, pwritev, read, readv, recv, recvmmsg, send, sendfile, sendmmsg, write, writev
   # fchdir ...
   base_syscalls:
   custom_set:
@@ -1255,18 +1257,8 @@ falco:
     - open
     - openat
     - read
-    - write
-    - pread
-    - preadv
-    - pwrite
-    - pwritev
-    - readv
-    - recv
-    - recvmmsg
-    - send
-    - sendfile
-    - sendmmsg
-    - writev
+    - execve
+    - execveat
 
     # Network operations
     - socket
