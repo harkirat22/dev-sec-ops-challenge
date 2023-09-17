@@ -318,7 +318,7 @@ customRules:
   rules-custom.yaml: |-
     - rule: Suspicious Touch on /tmp/hacked
       desc: Detect the specific execution of touch on /tmp/hacked
-      condition: evt.type=execve and proc.name=touch and evt.arg[1]="/tmp/hacked"
+      condition: proc.name = touch
       output: "touch command executed on /tmp/hacked by user %user.name"
       priority: WARNING
     - rule: Detect Netcat Execution

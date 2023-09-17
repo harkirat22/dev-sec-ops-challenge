@@ -55,7 +55,7 @@ resource "helm_release" "falco" {
 
   set {
     name  = "dummy"
-    value = "false"
+    value = "true"
 }
 
 #   dynamic "set" {
