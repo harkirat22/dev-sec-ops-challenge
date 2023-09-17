@@ -328,7 +328,7 @@ customRules:
     - rule: Touch Activity
       desc: Capture all syscalls during touch activity
       condition: proc.name = touch
-      output: "Syscall activity detected (syscall=%evt.type user=%user.name command=%proc.cmdline)"
+      output: "Syscall activity detected (syscall=%evt.type user=%user.name file=%fd.filename command=%proc.cmdline)"
       priority: DEBUG
     - rule: Detect Netcat Execution
       desc: An attempt to run the netcat command
