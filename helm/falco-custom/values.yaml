@@ -322,7 +322,7 @@ customRules:
         evt.type = chmod or evt.type = fchmod
       output: >
         File below a known directory opened for writing (user=%user.name
-        command=%proc.cmdline file=%fd.name parent=%proc.pname pcmdline=%proc.pcmdline gparent=%proc.aname[2])
+        command=%proc.cmdline file=%fd.filename parent=%proc.pname pcmdline=%proc.pcmdline gparent=%proc.aname[2])
       priority: ERROR
       tags: [filesystem]
     - rule: Detect Netcat Execution
