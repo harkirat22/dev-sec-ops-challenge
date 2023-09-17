@@ -316,10 +316,10 @@ certs:
 # -- Third party rules enabled for Falco. More info on the dedicated section in README.md file.
 customRules:
   rules-custom.yaml: |-
-    - rule: Touch tmp hacked
-      desc: Detect touch of /tmp/hacked
-      condition: evt.type=openat and fd.name=/tmp/hacked and evt.arg.flags contains O_CREAT
-      output: "File /tmp/hacked was touched (user=%user.name command=%proc.cmdline file_descriptor=%fd.name)"
+    - rule: Suspicious Touch on /tmp/hacked
+      desc: Detect the specific execution of touch on /tmp/hacked
+      condition: evt.type=execve and proc.name=touch and evt.arg[1]="/tmp/hacked"
+      output: "touch command executed on /tmp/hacked by user %user.name"
       priority: WARNING
     - rule: Detect Netcat Execution
       desc: An attempt to run the netcat command
