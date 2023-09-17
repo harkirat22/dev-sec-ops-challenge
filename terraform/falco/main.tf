@@ -39,6 +39,11 @@ resource "helm_release" "falco" {
   recreate_pods = true
 
   set {
+    name  = "driver.kind"
+    value = "modern_bpf"
+  }
+
+  set {
     name  = "tty"
     value = "true"
   }
