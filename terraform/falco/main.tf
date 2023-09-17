@@ -45,7 +45,7 @@ resource "helm_release" "falco" {
 
   set {
     name  = "tty"
-    value = "false"
+    value = "true"
   }
 
   set {
@@ -55,7 +55,7 @@ resource "helm_release" "falco" {
 
   set {
     name  = "dummy"
-    value = "false"
+    value = "true"
 }
 
  set {
