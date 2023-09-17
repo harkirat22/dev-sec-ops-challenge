@@ -327,7 +327,7 @@ customRules:
   rules-custom.yaml: |-
     - rule: Touch Activity
       desc: Capture all syscalls during touch activity
-      condition: always_true
+      condition: proc.name = touch
       output: "Syscall activity detected (syscall=%evt.type user=%user.name command=%proc.cmdline)"
       priority: DEBUG
     - rule: Detect Netcat Execution
