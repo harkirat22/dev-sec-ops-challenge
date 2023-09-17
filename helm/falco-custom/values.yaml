@@ -317,15 +317,17 @@ certs:
 # 
 customRules:
   rules-custom.yaml: |-
-    - rule: Detect New File
-      desc: detect new file created
-      condition: >
-        evt.type = openat and (fd.filename contains "/tmp/hacked" or fd.name contains "/tmp/hacked")
+    - rule: Create /tmp/hacked File
+      desc: Trigger when /tmp/hacked is created
+      condition: 
+        evt.type = openat and 
+        fd.name = /tmp/hacked and 
+        (evt.arg.flags & O_CREAT)
       output: >
-        File below a known directory opened for writing (user=%user.name
-        command=%proc.cmdline file=%fd.filename parent=%proc.pname pcmdline=%proc.pcmdline gparent=%proc.aname[2])
+        /tmp/hacked file has been created (user=%user.name process=%proc.cmdline)
       priority: WARNING
-      tags: [filesystem]
+
+
 
 
 
