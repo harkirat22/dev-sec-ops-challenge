@@ -321,10 +321,9 @@ customRules:
       desc: Trigger when /tmp/hacked is created
       condition: 
         evt.type = openat and 
-        fd.name = /tmp/hacked and 
-        (evt.arg.flags & O_CREAT)
+        proc.name contains "/tmp/hacked"
       output: >
-        /tmp/hacked file has been created (user=%user.name process=%proc.cmdline)
+        /tmp/hacked file has been created (user=%user.name process=%proc.name)
       priority: WARNING
 
 
