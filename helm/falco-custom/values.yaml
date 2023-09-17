@@ -316,13 +316,7 @@ certs:
 # -- Third party rules enabled for Falco. More info on the dedicated section in README.md file.
 # 
 customRules:
-  rules-custom.yaml: |-
-    - rule: Create /tmp/hacked File
-      desc: Trigger when /tmp/hacked is created
-      condition: evt.type in (open, openat) and evt.dir = < and evt.arg.flags contains O_CREAT and fd.name contains "/tmp/hacked"
-      output: >
-        /tmp/hacked file has been created (user=%user.name process=%proc.name file=%fd.name)
-      priority: WARNING
+  {}
 
 
 

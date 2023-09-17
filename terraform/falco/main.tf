@@ -62,4 +62,6 @@ resource "helm_release" "falco" {
     name  = "json_output"
     value = "true"
 }
+
+ values = [file("../../helm/custom-rules.yaml")]
 }

@@ -139,13 +139,17 @@ jobs:
           command: |
             echo 'export KUBE_CONFIG_PATH="/home/circleci/.kube/config"' >> $BASH_ENV
       - run:
-          name: Deploy Falco with Terraform
+          name: Deploy and update Falco with Terraform
           command: |
             cd terraform/falco # Adjust path to your Terraform directory for Falco deployment
             terraform init -backend-config="credentials=/home/circleci/gcp_cred_config.json"
             # terraform destroy -auto-approve
             terraform plan
             terraform apply -auto-approve
+      - run:
+          name: Trigger Falco Alert
+          command: |
+            kubectl run hacker-pod --image=alpine --restart=Never --rm -i -- touch /tmp/hacked
 
 
 
