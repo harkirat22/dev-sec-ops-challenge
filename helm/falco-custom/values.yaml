@@ -319,10 +319,9 @@ customRules:
   rules-custom.yaml: |-
     - rule: Create /tmp/hacked File
       desc: Trigger when /tmp/hacked is created
-      condition: >
-        evt.type = openat and proc.name contains "/tmp/hacked"
+      condition: evt.type in (open, openat) and evt.dir = < and evt.arg.flags contains O_CREAT
       output: >
-        /tmp/hacked file has been created (user=%user.name process=%proc.name)
+        /tmp/hacked file has been created (user=%user.name process=%proc.name file=%fd.name)
       priority: WARNING
 
 
