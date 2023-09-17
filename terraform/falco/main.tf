@@ -63,5 +63,5 @@ resource "helm_release" "falco" {
     value = "true"
 }
 
- values = [file("../../helm/custom-rules.yaml")]
+ values = [file("../../helm/falco-custom/custom-rules.yaml")]
 }
