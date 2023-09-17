@@ -58,6 +58,11 @@ resource "helm_release" "falco" {
     value = "true"
 }
 
+ set {
+    name  = "json_output"
+    value = "true"
+}
+
 #   dynamic "set" {
 #     for_each = [for s in local.syscalls : {
 #       name  = "base_syscalls.custom_set[${index(local.syscalls, s)}]"
