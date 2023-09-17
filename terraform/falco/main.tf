@@ -40,7 +40,7 @@ resource "helm_release" "falco" {
 
   set {
     name  = "driver.kind"
-    value = "module"
+    value = "kernel"
   }
 
   set {
