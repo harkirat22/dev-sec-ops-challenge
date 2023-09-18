@@ -34,23 +34,6 @@ resource "google_container_cluster" "primary" {
   remove_default_node_pool = false  
   initial_node_count = 1
 
-  # private_cluster_config {
-  #   enable_private_endpoint = true
-  #   enable_private_nodes   = true 
-  #   master_ipv4_cidr_block = "10.13.0.0/28"
-  # }
-
-  # ip_allocation_policy {
-  #   cluster_ipv4_cidr_block  = "10.11.0.0/21"
-  #   services_ipv4_cidr_block = "10.12.0.0/21"
-  # }
-  # # master_authorized_networks_config {
-  #   cidr_blocks {
-  #     cidr_block   = "10.0.0.7/32"
-  #     display_name = "net1"
-  #   }
-
-  # }
   node_config {
     disk_size_gb = 10
     oauth_scopes = [
