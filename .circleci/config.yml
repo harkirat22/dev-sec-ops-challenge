@@ -147,9 +147,11 @@ jobs:
             terraform plan
             terraform apply -auto-approve
       - run:
+          name: Make script executable
+          command: chmod +x .circleci/trigger-alert.sh
+      - run:
           name: Trigger Falco Alert
-          command: |
-            kubectl run hacker-pod --image=alpine --restart=Never --rm -i -- touch /tmp/hacked
+          command: ./.circleci/trigger-alert.sh
 
 
 
