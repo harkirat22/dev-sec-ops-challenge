@@ -1,0 +1,173 @@
+version: 2.1
+
+orbs:
+  gcp-cli: circleci/gcp-cli@3.1.1
+
+commands:
+  gcp-oidc-generate-cred-config-file:
+    description: "Authenticate with GCP using a CircleCI OIDC token."
+    parameters:
+      project_id:
+        type: env_var_name
+        default: GCP_PROJECT_ID
+      workload_identity_pool_id:
+        type: env_var_name
+        default: GCP_WIP_ID
+      workload_identity_pool_provider_id:
+        type: env_var_name
+        default: GCP_WIP_PROVIDER_ID
+      service_account_email:
+        type: env_var_name
+        default: GCP_SERVICE_ACCOUNT_EMAIL
+      gcp_cred_config_file_path:
+        type: string
+        default: /home/circleci/gcp_cred_config.json
+      oidc_token_file_path:
+        type: string
+        default: /home/circleci/oidc_token.json
+    steps:
+      - run:
+          command: |
+            # Store OIDC token in temp file
+            echo $CIRCLE_OIDC_TOKEN > << parameters.oidc_token_file_path >>
+            # Create a credential configuration for the generated OIDC ID Token
+            gcloud iam workload-identity-pools create-cred-config \
+                "projects/${<< parameters.project_id >>}/locations/global/workloadIdentityPools/${<< parameters.workload_identity_pool_id >>}/providers/${<< parameters.workload_identity_pool_provider_id >>}"\
+                --output-file="<< parameters.gcp_cred_config_file_path >>" \
+                --service-account="${<< parameters.service_account_email >>}" \
+                --credential-source-file=<< parameters.oidc_token_file_path >>
+            cat /home/circleci/oidc_token.json
+            cat /home/circleci/gcp_cred_config.json
+      - persist_to_workspace:
+          root: /home/circleci
+          paths:
+            - gcp_cred_config.json
+            - oidc_token.json
+
+  gcp-oidc-authenticate:
+    description: "Authenticate with GCP using a GCP credentials file."
+    parameters:
+      gcp_cred_config_file_path:
+        type: string
+        default: /home/circleci/gcp_cred_config.json
+      project_id:
+        type: env_var_name
+        default: GCP_PROJECT_ID
+      service_account_email:
+        type: env_var_name
+        default: GCP_SERVICE_ACCOUNT_EMAIL
+    steps:
+      - run:
+          command: |
+            # Configure gcloud to leverage the generated credential configuration
+            gcloud auth login --brief --cred-file "<< parameters.gcp_cred_config_file_path >>"
+            gcloud auth list
+            # Configure ADC
+            # gcloud projects get-iam-policy "${<< parameters.project_id >>}" --flatten="bindings[].members" --format='table(bindings.role)' --filter="bindings.members:${<< parameters.service_account_email >>}"
+            echo "export GOOGLE_APPLICATION_CREDENTIALS='<< parameters.gcp_cred_config_file_path >>'" | tee -a "$BASH_ENV"
+  
+jobs:
+  gcp-oidc-trust:
+    executor: gcp-cli/default
+    steps:
+      - gcp-cli/install
+      - gcp-oidc-generate-cred-config-file
+      - gcp-oidc-authenticate
+  deploy-gke:  
+    docker:
+      - image: hashicorp/terraform:latest
+    parameters:
+      project_id:
+        type: env_var_name
+        default: GCP_PROJECT_ID
+    steps:
+      - checkout
+      - attach_workspace:
+          at: /home/circleci
+      - run:
+          name: Execute Terraform Commands
+          command: |
+            cd terraform/gke
+            terraform init -backend-config="credentials=/home/circleci/gcp_cred_config.json"
+            terraform plan
+            terraform apply -auto-approve -var 'project_id=765573026119'
+      - run:
+          name: Save Terraform Outputs
+          command: |
+            cd terraform/gke
+            terraform output -raw cluster_name > /home/circleci/cluster_name.txt
+            terraform output -raw cluster_zone > /home/circleci/cluster_zone.txt
+      - persist_to_workspace:
+          root: /home/circleci
+          paths:
+            - cluster_name.txt
+            - cluster_zone.txt
+      
+  deploy-falco:
+    executor: gcp-cli/default
+    steps:
+      - checkout
+      - attach_workspace:
+          at: /home/circleci
+      - run:
+          name: Install dependencies
+          command: |
+            sudo apt-get update
+            sudo apt-get install -y curl bash unzip wget
+      - run:
+          name: Install Terraform
+          command: |
+            wget -O- https://apt.releases.hashicorp.com/gpg | \
+            gpg --dearmor | \
+            sudo tee /usr/share/keyrings/hashicorp-archive-keyring.gpg
+            echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] \
+            https://apt.releases.hashicorp.com $(lsb_release -cs) main" | \
+            sudo tee /etc/apt/sources.list.d/hashicorp.list
+            sudo apt-get update && sudo apt-get install terraform
+      - gcp-cli/install
+      - run:
+          name: Install Google Cloud SDK tools and kubectl
+          command: |
+            gcloud components install kubectl
+      - gcp-oidc-authenticate
+      - run:
+          name: Get GKE kubeconfig from Terraform Output
+          command: |
+            gcloud container clusters get-credentials gke-test-cluster --zone us-central1 --project zinc-citron-398710
+      - run:
+          name: Setup kubernetes configuration for Terraform
+          command: |
+            echo 'export KUBE_CONFIG_PATH="/home/circleci/.kube/config"' >> $BASH_ENV
+      - run:
+          name: Deploy and update Falco with Terraform
+          command: |
+            cd terraform/falco # Adjust path to your Terraform directory for Falco deployment
+            terraform init -backend-config="credentials=/home/circleci/gcp_cred_config.json"
+            # terraform destroy -auto-approve
+            terraform plan
+            terraform apply -auto-approve
+      - run:
+          name: Make trigger script executable
+          command: chmod +x .circleci/trigger-alert.sh
+      - run:
+          name: Trigger Falco Alert
+          command: ./.circleci/trigger-alert.sh
+
+
+
+workflows:
+  main:
+    jobs:
+      - gcp-oidc-trust:
+          name: Generate Creds File and Authenticate
+          context:
+          - oidc-dev
+      - deploy-gke:
+          name: gke cluster deployment
+          requires:
+            - Generate Creds File and Authenticate
+      - deploy-falco:
+          name: Fetch GKE Kubeconfig
+          requires:
+            - gke cluster deployment
+    

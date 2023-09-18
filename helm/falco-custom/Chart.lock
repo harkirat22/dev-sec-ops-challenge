@@ -1,0 +1,6 @@
+dependencies:
+- name: falcosidekick
+  repository: https://falcosecurity.github.io/charts
+  version: 0.6.3
+digest: sha256:9f848cbdb8385b8f56b56237e475a7bc46c4e177658d8b0fad9955e3763a32ff
+generated: "2023-09-15T18:48:02.29434+10:00"
