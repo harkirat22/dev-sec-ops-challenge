@@ -51,7 +51,7 @@ resource "kubernetes_daemonset" "suricata" {
           name  = "suricata"
           image = "harkirat101803/custom-suricata:${var.docker_tag}"
 
-          command = ["/bin/sh", "-c", "/docker-entrypoint.sh -i $(cat /tmp/interface-name)"]
+          command = ["/bin/sh", "-c", "/docker-entrypoint.sh -c /etc/suricata/suricata.yaml -i $(cat /tmp/interface-name)"]
 
           env {
             name  = "INTERFACE"
