@@ -102,8 +102,29 @@ jobs:
           paths:
             - cluster_name.txt
             - cluster_zone.txt
+  build-push-docker:
+    docker:
+      - image: docker:latest
+    environment:
+      IMAGE_NAME: harkirat101803/custom-suricata
+    steps:
+      - checkout
+      - setup_remote_docker
+      - run:
+          name: Login to DockerHub
+          command: echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+      - run:
+          name: Build the Docker image
+          command: |
+            cd suricato
+            docker build -t $IMAGE_NAME:$CIRCLE_SHA1 -f Dockerfile .
+      - run:
+          name: Push Docker image
+          command: |
+            docker push $IMAGE_NAME:$CIRCLE_SHA1
+
       
-  deploy-falco:
+  deploy-falco-and-suricate:
     executor: gcp-cli/default
     steps:
       - checkout
@@ -143,7 +164,6 @@ jobs:
           command: |
             cd terraform/falco # Adjust path to your Terraform directory for Falco deployment
             terraform init -backend-config="credentials=/home/circleci/gcp_cred_config.json"
-            # terraform destroy -auto-approve
             terraform plan
             terraform apply -auto-approve
       - run:
@@ -152,6 +172,13 @@ jobs:
       - run:
           name: Trigger Falco Alert
           command: ./.circleci/trigger-alert.sh
+      - run:
+          name: Deploy and update Suricata with Terraform
+          command: |
+            cd terraform/suricata
+            terraform init -backend-config="credentials=/home/circleci/gcp_cred_config.json"
+            terraform plan
+            terraform apply -auto-approve -var "docker_tag=$CIRCLE_SHA1"
 
 
 
@@ -166,8 +193,11 @@ workflows:
           name: gke cluster deployment
           requires:
             - Generate Creds File and Authenticate
-      - deploy-falco:
-          name: Fetch GKE Kubeconfig
+      - build-push-docker:
+          name: build custom suricato image
+      - deploy-falco-and-suricate:
+          name: deploy falco and suricato
           requires:
             - gke cluster deployment
+            - build custom suricato image
     
