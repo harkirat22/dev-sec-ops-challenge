@@ -51,7 +51,7 @@ resource "kubernetes_daemonset" "suricata" {
           name  = "suricata"
           image = "harkirat101803/custom-suricata:${var.docker_tag}"
 
-          args = ["/docker-entrypoint.sh", "-i", "$(cat /tmp/interface-name)"]
+          args = ["/docker-entrypoint.sh", "-i", "cat /tmp/interface-name"]
 
           volume_mount {
             name       = "logs"
