@@ -55,7 +55,7 @@ resource "kubernetes_daemonset" "suricata" {
 
           env {
             name  = "INTERFACE"
-            value = ""  # Placeholder value as Kubernetes doesn't directly support extracting arguments from another container.
+            value = ""  # Placehfolder value as Kubernetes doesn't directly support extracting arguments from another container.
           }
 
           volume_mount {
