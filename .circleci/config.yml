@@ -116,7 +116,7 @@ jobs:
       - run:
           name: Build the Docker image
           command: |
-            cd suricato
+            cd suricata
             docker build -t $IMAGE_NAME:$CIRCLE_SHA1 -f Dockerfile .
       - run:
           name: Push Docker image
