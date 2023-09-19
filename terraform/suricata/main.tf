@@ -42,30 +42,27 @@ resource "kubernetes_daemonset" "suricata" {
           }
         }
 
-        container {
-          name  = "suricata"
-          image = "harkirat101803/custom-suricata:${var.docker_tag}"
+       container {
+        name  = "suricata"
+        image = "harkirat101803/custom-suricata:${var.docker_tag}"
 
-          args = [
-            "-i", "$(INTERFACE)"
-          ]
+        command = ["/docker-entrypoint.sh"]
+        args = ["-i", "$(cat /tmp/interface-name)"]  # Using the interface from the shared file.
 
-          env {
-            name  = "INTERFACE"
-            value = ""  # Placeholder value as Kubernetes doesn't directly support extracting arguments from another container.
-          }
-
-          security_context {
+        security_context {
             capabilities {
-              add = ["NET_ADMIN", "NET_RAW", "SYS_NICE"]
+                add = ["NET_ADMIN", "NET_RAW", "SYS_NICE"]
             }
-          }
-
-          volume_mount {
+        }
+        volume_mount {
             name       = "logs"
             mount_path = "/var/log/suricata"
-          }
         }
+        volume_mount {
+            name       = "interface-name"
+            mount_path = "/tmp"
+        }
+    }
 
         volume {
           name = "logs"
