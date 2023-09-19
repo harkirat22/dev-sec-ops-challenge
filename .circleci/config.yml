@@ -177,6 +177,7 @@ jobs:
           command: |
             cd terraform/suricata
             terraform init -backend-config="credentials=/home/circleci/gcp_cred_config.json"
+            terraform destroy -auto-approve
             terraform plan
             terraform apply -auto-approve -var "docker_tag=$CIRCLE_SHA1"
 
