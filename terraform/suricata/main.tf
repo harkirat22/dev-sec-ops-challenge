@@ -32,7 +32,12 @@ resource "kubernetes_daemonset" "suricata" {
         init_container {
           name    = "init-network-setup"
           image   = "busybox:latest"  # Using busybox for lightweight shell operations.
-          command = ["/bin/sh", "-c", "interface=$(ip -o -4 route show to default | awk '{print $5}') && ip link set $interface promisc on"]
+          command = ["/bin/sh", "-c", "interface=$(ip -o -4 route show to default | awk '{print $5}') && echo $interface > /tmp/interface-name && ip link set $interface promisc on"]
+
+          volume_mount {
+            name       = "interface-name"
+            mount_path = "/tmp"
+          }
 
           security_context {
             privileged = true  # Needed to alter network interfaces.
@@ -42,33 +47,39 @@ resource "kubernetes_daemonset" "suricata" {
           }
         }
 
-       container {
-        name  = "suricata"
-        image = "harkirat101803/custom-suricata:${var.docker_tag}"
+        container {
+          name  = "suricata"
+          image = "harkirat101803/custom-suricata:${var.docker_tag}"
 
-        command = ["/docker-entrypoint.sh"]
-        args = ["-i", "$(cat /tmp/interface-name)"]  # Using the interface from the shared file.
+          args = ["/docker-entrypoint.sh", "-i", "$(cat /tmp/interface-name)"]
 
-        security_context {
-            capabilities {
-                add = ["NET_ADMIN", "NET_RAW", "SYS_NICE"]
-            }
-        }
-        volume_mount {
+          volume_mount {
             name       = "logs"
             mount_path = "/var/log/suricata"
-        }
-        volume_mount {
+          }
+
+          volume_mount {
             name       = "interface-name"
             mount_path = "/tmp"
+          }
+
+          security_context {
+            capabilities {
+              add = ["NET_ADMIN", "NET_RAW", "SYS_NICE"]
+            }
+          }
         }
-    }
 
         volume {
           name = "logs"
           empty_dir {
             medium = "Memory"
           }
+        }
+
+        volume {
+          name = "interface-name"
+          empty_dir {}
         }
 
         host_network = true
