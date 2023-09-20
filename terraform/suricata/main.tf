@@ -51,7 +51,7 @@ resource "kubernetes_daemonset" "suricata" {
           name  = "suricata"
           image = "harkirat101803/custom-suricata:${var.docker_tag}"
 
-          command = ["/bin/sh", "-c", "/docker-entrypoint.sh -c /etc/suricata/suricata.yaml -i $(cat /tmp/interface-name)"]
+          command = ["/bin/sh", "-c", "interface=$(cat /tmp/interface-name) && ip link set $interface promisc on && /docker-entrypoint.sh -c /etc/suricata/suricata.yaml -i $interface"]
 
           env {
             name  = "INTERFACE"
