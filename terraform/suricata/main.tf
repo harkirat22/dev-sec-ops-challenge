@@ -28,14 +28,6 @@ resource "kubernetes_service_account" "suricata_sa" {
   automount_service_account_token = true
 }
 
-resource "kubernetes_service_account" "suricata_sa" {
-  metadata {
-    name      = "suricata-service-account"
-    namespace = "default"
-  }
-  automount_service_account_token = true
-}
-
 resource "kubernetes_cluster_role_binding" "suricata_role_binding" {
   metadata {
     name = "suricata-listener-role-binding"
