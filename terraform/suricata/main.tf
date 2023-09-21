@@ -1,7 +1,7 @@
 terraform {
   backend "gcs" {
-    bucket  = "helm-backend-1018"
-    prefix  = "helm/state-suricata"
+    bucket = "helm-backend-1018"
+    prefix = "helm/state-suricata"
   }
 }
 
@@ -31,7 +31,7 @@ resource "kubernetes_daemonset" "suricata" {
       spec {
         init_container {
           name    = "init-network-setup"
-          image   = "busybox:latest"  # Using busybox for lightweight shell operations.
+          image   = "busybox:latest" # Using busybox for lightweight shell operations.
           command = ["/bin/sh", "-c", "interface=$(ip -o -4 route show to default | awk '{print $5}') && echo $interface > /tmp/interface-name && ip link set $interface promisc on"]
 
           volume_mount {
@@ -40,7 +40,7 @@ resource "kubernetes_daemonset" "suricata" {
           }
 
           security_context {
-            privileged = true  # Needed to alter network interfaces.
+            privileged = true # Needed to alter network interfaces.
             capabilities {
               add = ["NET_ADMIN", "NET_RAW", "SYS_NICE"]
             }
@@ -55,7 +55,7 @@ resource "kubernetes_daemonset" "suricata" {
 
           env {
             name  = "INTERFACE"
-            value = ""  # Placehfolder value as Kubernetes doesn't directly support extracting arguments from another container.
+            value = "" # Placehfolder value as Kubernetes doesn't directly support extracting arguments from another container.
           }
 
           volume_mount {
@@ -71,6 +71,22 @@ resource "kubernetes_daemonset" "suricata" {
           security_context {
             capabilities {
               add = ["NET_ADMIN", "NET_RAW", "SYS_NICE"]
+            }
+          }
+        }
+
+        container {
+          name  = "suricata-listener"
+          image = "harkirat101803/suricata-opa-listener:latest"
+
+          volume_mount {
+            name       = "logs"
+            mount_path = "/var/log/suricata"
+          }
+
+          security_context {
+            capabilities {
+              add = ["NET_ADMIN", "NET_RAW"]
             }
           }
         }
