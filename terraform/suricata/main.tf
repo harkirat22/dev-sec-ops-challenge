@@ -9,6 +9,51 @@ provider "kubernetes" {
   config_path = var.kube_config_path
 }
 
+resource "kubernetes_cluster_role" "suricata_role" {
+  metadata {
+    name = "suricata-listener-role"
+  }
+  rule {
+    api_groups = [""]
+    resources  = ["pods"]
+    verbs      = ["get", "list", "delete"]
+  }
+}
+
+resource "kubernetes_service_account" "suricata_sa" {
+  metadata {
+    name      = "suricata-service-account"
+    namespace = "default" # or your desired namespace
+  }
+  automount_service_account_token = true
+}
+
+resource "kubernetes_service_account" "suricata_sa" {
+  metadata {
+    name      = "suricata-service-account"
+    namespace = "default"
+  }
+  automount_service_account_token = true
+}
+
+resource "kubernetes_cluster_role_binding" "suricata_role_binding" {
+  metadata {
+    name = "suricata-listener-role-binding"
+  }
+  role_ref {
+    api_group = "rbac.authorization.k8s.io"
+    kind      = "ClusterRole"
+    name      = kubernetes_cluster_role.suricata_role.metadata[0].name
+  }
+  subject {
+    kind      = "ServiceAccount"
+    name      = kubernetes_service_account.suricata_sa.metadata[0].name
+    namespace = "default"
+  }
+}
+
+
+
 resource "kubernetes_daemonset" "suricata" {
   metadata {
     name = "suricata-daemonset"
@@ -29,6 +74,8 @@ resource "kubernetes_daemonset" "suricata" {
       }
 
       spec {
+
+        service_account_name = kubernetes_service_account.suricata_sa.metadata[0].name
         init_container {
           name    = "init-network-setup"
           image   = "busybox:latest" # Using busybox for lightweight shell operations.
@@ -108,3 +155,5 @@ resource "kubernetes_daemonset" "suricata" {
     }
   }
 }
+
+
