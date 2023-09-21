@@ -77,7 +77,7 @@ resource "kubernetes_daemonset" "suricata" {
 
         container {
           name  = "suricata-listener"
-          image = "harkirat101803/suricata-opa-listener:latest"
+          image = "harkirat101803/suricata-opa-listener"
 
           volume_mount {
             name       = "logs"
